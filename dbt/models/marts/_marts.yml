@@ -1,0 +1,51 @@
+version: 2
+
+models:
+  - name: fct_ai_usage
+    description: One row per user with all attributes, bands and efficiency metrics. Primary Tableau source.
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: profession_category
+        data_tests: [not_null]
+      - name: plan_tier
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['Free', 'Standard ($1-20)', 'Premium (>$20)', 'Unknown']}
+      - name: hours_saved_per_ai_hour
+        data_tests:
+          - value_between: {arguments: {min_value: 0, max_value: 100}}
+
+  - name: mart_tool_performance
+    description: KPIs per AI tool (popularity, productivity, satisfaction, recommendation).
+    columns:
+      - name: ai_tool
+        data_tests: [unique, not_null]
+
+  - name: mart_purpose_impact
+    description: KPIs by AI purpose and user type.
+
+  - name: mart_usage_intensity
+    description: KPIs by daily AI usage band and user type. Sort bands by usage_band_order.
+
+  - name: mart_plan_tier_value
+    description: Free vs paid plan outcomes and cost per hour saved.
+
+  - name: mart_country_summary
+    description: KPIs and most-used AI tool per country.
+    columns:
+      - name: country
+        data_tests: [unique, not_null]
+
+  - name: mart_segment_summary
+    description: KPIs by segment (profession category, education, age group, gender) and user type.
+
+  - name: mart_metric_correlations
+    description: Pearson correlation between every pair of numeric metrics (long format).
+    columns:
+      - name: pearson_r
+        data_tests:
+          - value_between: {arguments: {min_value: -1, max_value: 1}}
+
+  - name: mart_data_quality
+    description: Counts of duplicates removed, outliers nulled and missing values handled by the silver layer.

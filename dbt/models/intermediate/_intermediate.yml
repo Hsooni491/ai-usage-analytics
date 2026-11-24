@@ -1,0 +1,18 @@
+version: 2
+
+models:
+  - name: int_ai_usage_enriched
+    description: Adds business logic to the cleaned survey responses (bands, tiers, job families, efficiency).
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: profession_category
+        description: Job family derived from the multilingual free-text profession (macro profession_category).
+      - name: usage_band
+        description: Daily AI usage bucket. Sort with usage_band_order.
+      - name: plan_tier
+        description: Free, Standard ($1-20) or Premium (>$20), from monthly AI cost.
+      - name: hours_saved_per_ai_hour
+        description: Weekly hours saved divided by weekly hours spent using AI.
+      - name: cost_per_hour_saved
+        description: Monthly AI cost divided by monthly hours saved (paid users only).

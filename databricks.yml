@@ -1,0 +1,32 @@
+# Declarative Automation Bundle (Databricks Asset Bundle).
+# Deploys a job: bronze notebook -> silver notebook -> dbt build (gold).
+#   databricks bundle validate -t dev --profile ai-usage
+#   databricks bundle deploy   -t dev --profile ai-usage
+#   databricks bundle run ai_usage_pipeline -t dev --profile ai-usage
+bundle:
+  name: ai_usage_analytics
+
+variables:
+  catalog:
+    default: ai_usage
+  warehouse_id:
+    description: SQL warehouse used by the dbt task
+    lookup:
+      warehouse: Serverless Starter Warehouse
+
+include:
+  - databricks/resources/*.yml
+
+sync:
+  exclude:
+    - .venv/**
+    - data/lake/**
+    - dbt/target/**
+    - dbt/logs/**
+    - dbt/*.duckdb
+    - tableau/data/**
+
+targets:
+  dev:
+    mode: development
+    default: true

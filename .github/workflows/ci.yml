@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements*.txt
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Install dependencies
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: ruff check .
+
+      - name: Unit tests (PySpark transforms + Tableau workbook)
+        run: pytest
+
+      - name: End-to-end pipeline (PySpark -> dbt build on DuckDB -> Tableau export)
+        env:
+          PYTHON: python
+          DBT: dbt
+        run: ./scripts/run_all.sh
+
+      - name: Committed Tableau data is up to date
+        run: git diff --exit-code -- tableau/data

@@ -1,0 +1,38 @@
+version: 2
+
+models:
+  - name: stg_ai_usage
+    description: Cleaned survey responses, one row per user.
+    columns:
+      - name: user_id
+        data_tests: [unique, not_null]
+      - name: user_type
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['Student', 'Professional']}
+      - name: would_recommend
+        data_tests:
+          - accepted_values:
+              arguments: {values: ['Yes', 'No', 'Maybe', 'Unknown']}
+      - name: ai_tool
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: ['ChatGPT', 'Google Gemini', 'Microsoft Copilot', 'Claude', 'Perplexity AI',
+                         'Grammarly', 'Meta AI', 'DeepSeek', 'Unknown']
+      - name: productivity_score
+        data_tests:
+          - value_between: {arguments: {min_value: 0, max_value: 10}}
+      - name: satisfaction_score
+        data_tests:
+          - value_between: {arguments: {min_value: 1, max_value: 10}}
+      - name: accuracy_rating
+        data_tests:
+          - value_between: {arguments: {min_value: 1, max_value: 5}}
+      - name: age
+        data_tests:
+          - value_between: {arguments: {min_value: 13, max_value: 90}}
+      - name: ai_usage_hours_per_day
+        data_tests:
+          - value_between: {arguments: {min_value: 0, max_value: 16}}

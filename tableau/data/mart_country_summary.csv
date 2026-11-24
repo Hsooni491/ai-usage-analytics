@@ -1,0 +1,14 @@
+country,users,avg_productivity,avg_satisfaction,avg_accuracy,avg_time_saved_hrs_week,avg_ai_hours_day,avg_hours_saved_per_ai_hour,pct_paid_users,recommend_yes_pct,net_recommend_score,avg_monthly_income,top_ai_tool
+Australia,20,5.56,6.0,3.17,6.45,3.12,0.341,35.0,55.0,15.0,2615.0,ChatGPT
+Brazil,26,4.86,6.0,3.42,4.07,2.12,0.308,34.6,69.2,53.8,808.0,ChatGPT
+Canada,31,5.7,6.32,3.34,6.49,3.64,0.27,48.4,58.1,35.5,1521.0,ChatGPT
+France,10,5.01,5.78,3.38,6.01,2.9,0.31,40.0,60.0,40.0,2251.0,ChatGPT
+Germany,13,4.74,5.42,3.08,4.54,2.16,0.352,38.5,53.8,38.5,3111.0,ChatGPT
+India,43,5.02,6.36,3.59,5.25,2.67,0.363,41.9,62.8,41.9,760.0,ChatGPT
+Kenya,6,6.24,6.83,3.83,9.15,5.03,0.26,33.3,83.3,66.7,327.0,ChatGPT
+Nigeria,17,4.76,5.87,3.47,5.44,2.78,0.298,64.7,41.2,11.8,529.0,ChatGPT
+Pakistan,28,5.84,5.82,3.36,6.48,3.27,0.303,46.4,50.0,28.6,329.0,ChatGPT
+Philippines,24,5.47,6.25,3.46,6.08,2.74,0.341,45.8,62.5,41.7,490.0,ChatGPT
+United Kingdom,26,4.95,6.54,3.64,5.78,2.27,0.355,53.8,73.1,53.8,2574.0,ChatGPT
+United States,34,5.28,6.06,3.25,6.41,3.04,0.322,38.2,52.9,14.7,2701.0,ChatGPT
+Unknown,10,4.56,6.11,3.5,4.97,2.42,0.312,70.0,50.0,10.0,975.0,ChatGPT

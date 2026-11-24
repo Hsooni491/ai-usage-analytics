@@ -1,0 +1,24 @@
+version: 2
+
+# Tables written by the PySpark notebooks. On Databricks these are Delta tables in
+# Unity Catalog (<catalog>.bronze / <catalog>.silver). Locally (DuckDB target) they are
+# read from Parquet through config.meta.external_location.
+sources:
+  - name: bronze
+    schema: bronze
+    tables:
+      - name: ai_usage_raw
+        config:
+          meta:
+            external_location: "{{ env_var('LAKE_PATH', '../data/lake') }}/bronze/ai_usage_raw/*.parquet"
+
+  - name: silver
+    schema: silver
+    tables:
+      - name: ai_usage_clean
+        config:
+          meta:
+            external_location: "{{ env_var('LAKE_PATH', '../data/lake') }}/silver/ai_usage_clean/*.parquet"
+        columns:
+          - name: user_id
+            data_tests: [unique, not_null]

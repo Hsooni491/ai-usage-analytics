@@ -1,0 +1,32 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Local lake written by scripts/run_local.py
+data/lake/
+spark-warehouse/
+metastore_db/
+derby.log
+
+# dbt
+dbt/target/
+dbt/logs/
+dbt/dbt_packages/
+dbt/*.duckdb
+dbt/*.duckdb.wal
+dbt/.user.yml
+
+# Databricks bundle state
+.databricks/
+
+# Secrets / local config
+.env
+.databrickscfg
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/

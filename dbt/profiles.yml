@@ -1,0 +1,20 @@
+# Two targets:
+#   local      -> DuckDB file, reads the Parquet written by scripts/run_local.py
+#   databricks -> Unity Catalog on a SQL warehouse (set the env vars below)
+ai_usage:
+  target: "{{ env_var('DBT_TARGET', 'local') }}"
+  outputs:
+    local:
+      type: duckdb
+      path: "{{ env_var('DBT_DUCKDB_PATH', 'ai_usage.duckdb') }}"
+      schema: gold
+      threads: 4
+
+    databricks:
+      type: databricks
+      catalog: "{{ env_var('DBX_CATALOG', 'ai_usage') }}"
+      schema: gold
+      host: "{{ env_var('DATABRICKS_HOST', 'set-DATABRICKS_HOST') }}"
+      http_path: "{{ env_var('DATABRICKS_HTTP_PATH', 'set-DATABRICKS_HTTP_PATH') }}"
+      token: "{{ env_var('DATABRICKS_TOKEN', 'set-DATABRICKS_TOKEN') }}"
+      threads: 4

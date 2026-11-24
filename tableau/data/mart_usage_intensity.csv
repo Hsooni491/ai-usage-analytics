@@ -1,0 +1,13 @@
+usage_band,usage_band_order,user_type,users,avg_productivity,avg_satisfaction,avg_accuracy,avg_time_saved_hrs_week,avg_ai_hours_day,avg_hours_saved_per_ai_hour,pct_paid_users,recommend_yes_pct,net_recommend_score
+1-2 h,2,Professional,42,4.2,5.46,3.5,3.86,1.53,0.358,40.5,47.6,23.8
+1-2 h,2,Student,48,3.99,5.42,3.2,3.57,1.45,0.358,52.1,54.2,20.8
+2-4 h,3,Professional,38,5.73,6.28,3.47,5.55,2.74,0.284,31.6,65.8,47.4
+2-4 h,3,Student,38,5.37,6.39,3.51,5.99,2.93,0.287,52.6,60.5,44.7
+4-6 h,4,Professional,27,6.97,6.78,3.41,8.99,4.87,0.261,44.4,77.8,74.1
+4-6 h,4,Student,19,6.78,7.16,3.5,9.69,5.0,0.277,36.8,68.4,42.1
+6+ h,5,Professional,6,8.02,8.17,4.0,16.15,8.37,0.27,33.3,100.0,100.0
+6+ h,5,Student,19,8.03,7.89,3.44,13.98,7.76,0.258,47.4,78.9,57.9
+< 1 h,1,Professional,21,3.67,5.25,3.35,2.18,0.69,0.471,57.1,23.8,-28.6
+< 1 h,1,Student,22,3.53,5.45,3.6,1.68,0.71,0.354,40.9,45.5,0.0
+Unknown,9,Professional,3,5.77,6.33,3.33,7.33,,,100.0,66.7,33.3
+Unknown,9,Student,5,5.28,5.4,2.2,4.66,,,20.0,80.0,80.0

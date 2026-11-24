@@ -1,0 +1,41 @@
+resources:
+  jobs:
+    ai_usage_pipeline:
+      name: "[${bundle.target}] ai_usage_pipeline"
+      performance_target: STANDARD          # serverless, cost-optimised
+      schedule:
+        quartz_cron_expression: "0 0 6 * * ?"   # daily 06:00 UTC
+        timezone_id: UTC
+        pause_status: PAUSED
+      environments:
+        - environment_key: dbt_env
+          spec:
+            client: "2"
+            dependencies:
+              - dbt-databricks>=1.10,<2.0
+      tasks:
+        - task_key: bronze_ingest
+          notebook_task:
+            notebook_path: ../notebooks/01_bronze_ingest.py
+            base_parameters:
+              catalog: ${var.catalog}
+              source_path: /Volumes/${var.catalog}/raw/landing/ai_usage_raw.csv
+
+        - task_key: silver_transform
+          depends_on: [{task_key: bronze_ingest}]
+          notebook_task:
+            notebook_path: ../notebooks/02_silver_transform.py
+            base_parameters:
+              catalog: ${var.catalog}
+
+        - task_key: dbt_gold
+          depends_on: [{task_key: silver_transform}]
+          environment_key: dbt_env
+          dbt_task:
+            # No profiles_directory: Databricks generates a profile for this warehouse/catalog/schema
+            project_directory: ../../dbt
+            warehouse_id: ${var.warehouse_id}
+            catalog: ${var.catalog}
+            schema: gold
+            commands:
+              - dbt build
