@@ -22,13 +22,13 @@ lint:  ## Lint Python code
 test:  ## Run unit tests
 	$(PY) -m pytest
 
-pipeline:  ## Run the full local pipeline: PySpark -> dbt (DuckDB) -> Tableau files
+pipeline:  ## Run the full local pipeline: PySpark -> dbt build on DuckDB
 	PYTHON=$(PY) DBT=$(DBT) ./scripts/run_all.sh
 
 dbt-docs:  ## Generate and serve dbt documentation (lineage graph) locally
 	cd dbt && LAKE_PATH=$(CURDIR)/data/lake $(DBT) docs generate --profiles-dir . && $(DBT) docs serve --profiles-dir .
 
-deploy:  ## Deploy the Databricks bundle (job + notebooks + dbt project)
+deploy:  ## Deploy the Databricks bundle (job, notebooks, dbt project, dashboard)
 	databricks bundle deploy -t $(TARGET) --profile $(PROFILE)
 
 run-job:  ## Run the pipeline job on Databricks

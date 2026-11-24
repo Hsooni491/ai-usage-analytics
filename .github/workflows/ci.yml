@@ -29,14 +29,11 @@ jobs:
       - name: Lint
         run: ruff check .
 
-      - name: Unit tests (PySpark transforms + Tableau workbook)
+      - name: Unit tests (PySpark transforms + dashboard definition)
         run: pytest
 
-      - name: End-to-end pipeline (PySpark -> dbt build on DuckDB -> Tableau export)
+      - name: End-to-end pipeline (PySpark -> dbt build on DuckDB)
         env:
           PYTHON: python
           DBT: dbt
         run: ./scripts/run_all.sh
-
-      - name: Committed Tableau data is up to date
-        run: git diff --exit-code -- tableau/data

@@ -1,0 +1,9 @@
+resources:
+  dashboards:
+    ai_usage_dashboard:
+      display_name: "AI Usage & Impact Analytics"
+      file_path: ../../dashboards/ai_usage_analytics.lvdash.json
+      warehouse_id: ${var.warehouse_id}
+      # Dataset queries use bare table names; these fill in catalog.schema
+      dataset_catalog: ${var.catalog}
+      dataset_schema: gold

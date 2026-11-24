@@ -1,5 +1,5 @@
 # Declarative Automation Bundle (Databricks Asset Bundle).
-# Deploys a job: bronze notebook -> silver notebook -> dbt build (gold).
+# Deploys a job (bronze notebook -> silver notebook -> dbt build) and an AI/BI dashboard.
 #   databricks bundle validate -t dev --profile ai-usage
 #   databricks bundle deploy   -t dev --profile ai-usage
 #   databricks bundle run ai_usage_pipeline -t dev --profile ai-usage
@@ -24,7 +24,6 @@ sync:
     - dbt/target/**
     - dbt/logs/**
     - dbt/*.duckdb
-    - tableau/data/**
 
 targets:
   dev:

@@ -1,4 +1,4 @@
--- Q8: Which numeric drivers move together? (Pearson r, long format for a Tableau heat-map)
+-- Q8: Which numeric drivers move together? (Pearson r, long format for a heat-map)
 {% set metrics = ['ai_usage_hours_per_day', 'time_saved_hours_per_week', 'productivity_score',
                   'satisfaction_score', 'accuracy_rating', 'monthly_ai_cost', 'num_tasks',
                   'work_or_study_hours_per_day', 'age'] %}

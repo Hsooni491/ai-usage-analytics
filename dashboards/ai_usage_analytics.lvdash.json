@@ -1,0 +1,1497 @@
+{
+  "datasets": [
+    {
+      "name": "ds_users",
+      "displayName": "Survey respondents (gold.fct_ai_usage)",
+      "queryLines": [
+        "SELECT user_id, user_type, gender, country, age_group, education_level, profession_category,\n",
+        "       ai_tool, ai_purpose, usage_band, plan_tier, income_band,\n",
+        "       productivity_score, satisfaction_score, accuracy_rating,\n",
+        "       time_saved_hours_per_week, ai_usage_hours_per_day, monthly_ai_cost,\n",
+        "       is_paid_user, is_promoter, is_detractor\n",
+        "FROM fct_ai_usage\n"
+      ],
+      "columns": [
+        {
+          "displayName": "Respondents",
+          "description": "Number of survey respondents",
+          "expression": "COUNT(`user_id`)"
+        },
+        {
+          "displayName": "Avg Productivity",
+          "description": "Average self-rated productivity (0-10)",
+          "expression": "AVG(`productivity_score`)"
+        },
+        {
+          "displayName": "Avg Satisfaction",
+          "description": "Average satisfaction with the AI tool (1-10)",
+          "expression": "AVG(`satisfaction_score`)"
+        },
+        {
+          "displayName": "Avg Hours Saved",
+          "description": "Average hours saved per week",
+          "expression": "AVG(`time_saved_hours_per_week`)"
+        },
+        {
+          "displayName": "Recommend Rate",
+          "description": "Share of respondents who would recommend their tool",
+          "expression": "SUM(`is_promoter`) * 1.0 / COUNT(`user_id`)"
+        },
+        {
+          "displayName": "Net Recommend Score",
+          "description": "% would recommend minus % would not (range -100 to +100)",
+          "expression": "(SUM(`is_promoter`) - SUM(`is_detractor`)) * 100.0 / COUNT(`user_id`)"
+        },
+        {
+          "displayName": "Paid Share",
+          "description": "Share of respondents paying for AI",
+          "expression": "SUM(`is_paid_user`) * 1.0 / COUNT(`user_id`)"
+        }
+      ]
+    },
+    {
+      "name": "ds_tools",
+      "displayName": "Respondents who named their AI tool",
+      "queryLines": [
+        "SELECT user_id, user_type, gender, country, age_group, education_level, profession_category,\n",
+        "       ai_tool, ai_purpose, usage_band, plan_tier, income_band,\n",
+        "       productivity_score, satisfaction_score, accuracy_rating,\n",
+        "       time_saved_hours_per_week, ai_usage_hours_per_day, monthly_ai_cost,\n",
+        "       is_paid_user, is_promoter, is_detractor\n",
+        "FROM fct_ai_usage\n",
+        "WHERE ai_tool <> 'Unknown'\n"
+      ],
+      "columns": [
+        {
+          "displayName": "Respondents",
+          "description": "Number of survey respondents",
+          "expression": "COUNT(`user_id`)"
+        },
+        {
+          "displayName": "Avg Productivity",
+          "description": "Average self-rated productivity (0-10)",
+          "expression": "AVG(`productivity_score`)"
+        },
+        {
+          "displayName": "Avg Satisfaction",
+          "description": "Average satisfaction with the AI tool (1-10)",
+          "expression": "AVG(`satisfaction_score`)"
+        },
+        {
+          "displayName": "Avg Hours Saved",
+          "description": "Average hours saved per week",
+          "expression": "AVG(`time_saved_hours_per_week`)"
+        },
+        {
+          "displayName": "Recommend Rate",
+          "description": "Share of respondents who would recommend their tool",
+          "expression": "SUM(`is_promoter`) * 1.0 / COUNT(`user_id`)"
+        },
+        {
+          "displayName": "Net Recommend Score",
+          "description": "% would recommend minus % would not (range -100 to +100)",
+          "expression": "(SUM(`is_promoter`) - SUM(`is_detractor`)) * 100.0 / COUNT(`user_id`)"
+        },
+        {
+          "displayName": "Paid Share",
+          "description": "Share of respondents paying for AI",
+          "expression": "SUM(`is_paid_user`) * 1.0 / COUNT(`user_id`)"
+        }
+      ]
+    },
+    {
+      "name": "ds_corr",
+      "displayName": "Metric correlations (gold.mart_metric_correlations)",
+      "queryLines": [
+        "SELECT regexp_replace(initcap(replace(metric_x, '_', ' ')), '^Ai ', 'AI ') AS metric_x, regexp_replace(initcap(replace(metric_y, '_', ' ')), '^Ai ', 'AI ') AS metric_y, pearson_r\n",
+        "FROM mart_metric_correlations\n"
+      ]
+    },
+    {
+      "name": "ds_dq",
+      "displayName": "Data quality checks (gold.mart_data_quality)",
+      "queryLines": [
+        "SELECT regexp_replace(initcap(replace(check_name, '_', ' ')), '^Ai ', 'AI ') AS check_name, regexp_replace(initcap(replace(check_type, '_', ' ')), '^Ai ', 'AI ') AS check_type, affected_rows, total_rows\n",
+        "FROM mart_data_quality\n",
+        "ORDER BY affected_rows DESC\n"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "overview",
+      "displayName": "Overview",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# AI Usage & Impact on Students and Professionals\n",
+                "\n",
+                "Survey of **288 respondents** (300 raw rows, 12 duplicates removed) across 13 countries. Data flows CSV → PySpark (bronze/silver) → dbt (gold) on Databricks. Use the **Filters** page to slice every chart by user type, country, AI tool or age group."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_users",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "measure(Respondents)",
+                      "expression": "MEASURE(`Respondents`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Respondents)",
+                  "displayName": "Respondents",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "Respondents",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_productivity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "measure(Avg Productivity)",
+                      "expression": "MEASURE(`Avg Productivity`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Avg Productivity)",
+                  "displayName": "Avg productivity (0-10)",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "Avg productivity (0-10)",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 3,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_saved",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "measure(Avg Hours Saved)",
+                      "expression": "MEASURE(`Avg Hours Saved`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Avg Hours Saved)",
+                  "displayName": "Avg hours saved / week",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "Avg hours saved / week",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "kpi_recommend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "measure(Recommend Rate)",
+                      "expression": "MEASURE(`Recommend Rate`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "counter",
+              "encodings": {
+                "value": {
+                  "fieldName": "measure(Recommend Rate)",
+                  "displayName": "Would recommend their tool",
+                  "format": {
+                    "type": "number-percent",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "Would recommend their tool",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 9,
+            "y": 2,
+            "width": 3,
+            "height": 3
+          }
+        },
+        {
+          "widget": {
+            "name": "tool_popularity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_tools",
+                  "fields": [
+                    {
+                      "name": "ai_tool",
+                      "expression": "`ai_tool`"
+                    },
+                    {
+                      "name": "user_type",
+                      "expression": "`user_type`"
+                    },
+                    {
+                      "name": "measure(Respondents)",
+                      "expression": "MEASURE(`Respondents`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "y": {
+                  "fieldName": "ai_tool",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  },
+                  "displayName": "AI tool"
+                },
+                "x": {
+                  "fieldName": "measure(Respondents)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Respondents",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "user_type",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Student",
+                        "color": "#1192E8"
+                      },
+                      {
+                        "value": "Professional",
+                        "color": "#6929C4"
+                      }
+                    ]
+                  },
+                  "displayName": "User type"
+                }
+              },
+              "frame": {
+                "title": "Q1 · Which AI tools are used most?",
+                "showTitle": true,
+                "description": "Respondents per tool, split by students and professionals",
+                "showDescription": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 5,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "tool_recommend",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_tools",
+                  "fields": [
+                    {
+                      "name": "ai_tool",
+                      "expression": "`ai_tool`"
+                    },
+                    {
+                      "name": "measure(Net Recommend Score)",
+                      "expression": "MEASURE(`Net Recommend Score`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "y": {
+                  "fieldName": "ai_tool",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  },
+                  "displayName": "AI tool"
+                },
+                "x": {
+                  "fieldName": "measure(Net Recommend Score)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Net recommend score",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                }
+              },
+              "frame": {
+                "title": "Q2 · Which tools do users recommend?",
+                "showTitle": true,
+                "description": "% who would recommend minus % who would not",
+                "showDescription": true
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 5,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "usage_saved",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "usage_band",
+                      "expression": "`usage_band`"
+                    },
+                    {
+                      "name": "user_type",
+                      "expression": "`user_type`"
+                    },
+                    {
+                      "name": "measure(Avg Hours Saved)",
+                      "expression": "MEASURE(`Avg Hours Saved`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "usage_band",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "< 1 h",
+                        "1-2 h",
+                        "2-4 h",
+                        "4-6 h",
+                        "6+ h",
+                        "Unknown"
+                      ]
+                    }
+                  },
+                  "displayName": "Daily AI usage"
+                },
+                "y": {
+                  "fieldName": "measure(Avg Hours Saved)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Avg hours saved / week",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "user_type",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Student",
+                        "color": "#1192E8"
+                      },
+                      {
+                        "value": "Professional",
+                        "color": "#6929C4"
+                      }
+                    ]
+                  },
+                  "displayName": "User type"
+                }
+              },
+              "frame": {
+                "title": "Q4 · More daily AI use → more hours saved",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "group"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 11,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "usage_productivity",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "usage_band",
+                      "expression": "`usage_band`"
+                    },
+                    {
+                      "name": "user_type",
+                      "expression": "`user_type`"
+                    },
+                    {
+                      "name": "measure(Avg Productivity)",
+                      "expression": "MEASURE(`Avg Productivity`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "line",
+              "encodings": {
+                "x": {
+                  "fieldName": "usage_band",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "< 1 h",
+                        "1-2 h",
+                        "2-4 h",
+                        "4-6 h",
+                        "6+ h",
+                        "Unknown"
+                      ]
+                    }
+                  },
+                  "displayName": "Daily AI usage"
+                },
+                "y": {
+                  "fieldName": "measure(Avg Productivity)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Avg productivity",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "user_type",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Student",
+                        "color": "#1192E8"
+                      },
+                      {
+                        "value": "Professional",
+                        "color": "#6929C4"
+                      }
+                    ]
+                  },
+                  "displayName": "User type"
+                }
+              },
+              "frame": {
+                "title": "Q4 · Productivity rises with daily AI use",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 11,
+            "width": 6,
+            "height": 6
+          }
+        }
+      ]
+    },
+    {
+      "name": "value",
+      "displayName": "Value & Segments",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "value_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Where does AI create value?\n",
+                "\n",
+                "Purposes, plans, countries and job families compared on hours saved, productivity and willingness to recommend."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "purpose_saved",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "ai_purpose",
+                      "expression": "`ai_purpose`"
+                    },
+                    {
+                      "name": "user_type",
+                      "expression": "`user_type`"
+                    },
+                    {
+                      "name": "measure(Avg Hours Saved)",
+                      "expression": "MEASURE(`Avg Hours Saved`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "y": {
+                  "fieldName": "ai_purpose",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  },
+                  "displayName": "Purpose"
+                },
+                "x": {
+                  "fieldName": "measure(Avg Hours Saved)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Avg hours saved / week",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "user_type",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Student",
+                        "color": "#1192E8"
+                      },
+                      {
+                        "value": "Professional",
+                        "color": "#6929C4"
+                      }
+                    ]
+                  },
+                  "displayName": "User type"
+                }
+              },
+              "frame": {
+                "title": "Q3 · Hours saved per week by purpose",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "group"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "plan_value",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "plan_tier",
+                      "expression": "`plan_tier`"
+                    },
+                    {
+                      "name": "user_type",
+                      "expression": "`user_type`"
+                    },
+                    {
+                      "name": "measure(Net Recommend Score)",
+                      "expression": "MEASURE(`Net Recommend Score`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "plan_tier",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "custom-order",
+                      "orderedValues": [
+                        "Free",
+                        "Standard ($1-20)",
+                        "Premium (>$20)",
+                        "Unknown"
+                      ]
+                    }
+                  },
+                  "displayName": "Plan"
+                },
+                "y": {
+                  "fieldName": "measure(Net Recommend Score)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Net recommend score",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 1
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "user_type",
+                  "scale": {
+                    "type": "categorical",
+                    "mappings": [
+                      {
+                        "value": "Student",
+                        "color": "#1192E8"
+                      },
+                      {
+                        "value": "Professional",
+                        "color": "#6929C4"
+                      }
+                    ]
+                  },
+                  "displayName": "User type"
+                }
+              },
+              "frame": {
+                "title": "Q5 · Does paying improve the experience?",
+                "showTitle": true,
+                "description": "Free users recommend their tool more than paying users",
+                "showDescription": true
+              },
+              "mark": {
+                "layout": "group"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 2,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "country_users",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    },
+                    {
+                      "name": "measure(Respondents)",
+                      "expression": "MEASURE(`Respondents`)"
+                    },
+                    {
+                      "name": "measure(Avg Productivity)",
+                      "expression": "MEASURE(`Avg Productivity`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "y": {
+                  "fieldName": "country",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  },
+                  "displayName": "Country"
+                },
+                "x": {
+                  "fieldName": "measure(Respondents)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Respondents",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                },
+                "extra": [
+                  {
+                    "fieldName": "measure(Avg Productivity)",
+                    "displayName": "Avg productivity"
+                  }
+                ]
+              },
+              "frame": {
+                "title": "Q6 · Respondents and productivity by country",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 9,
+            "width": 6,
+            "height": 7
+          }
+        },
+        {
+          "widget": {
+            "name": "job_family_heatmap",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "profession_category",
+                      "expression": "`profession_category`"
+                    },
+                    {
+                      "name": "user_type",
+                      "expression": "`user_type`"
+                    },
+                    {
+                      "name": "measure(Avg Hours Saved)",
+                      "expression": "MEASURE(`Avg Hours Saved`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "user_type",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "User type"
+                },
+                "y": {
+                  "fieldName": "profession_category",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Job family"
+                },
+                "color": {
+                  "fieldName": "measure(Avg Hours Saved)",
+                  "displayName": "Avg hours saved",
+                  "scale": {
+                    "type": "quantitative",
+                    "colorRamp": {
+                      "mode": "custom-sequential",
+                      "colors": {
+                        "start": "#E8F1FB",
+                        "end": "#1D425C"
+                      }
+                    }
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "frame": {
+                "title": "Q7 · Hours saved per week by job family",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 9,
+            "width": 6,
+            "height": 7
+          }
+        }
+      ]
+    },
+    {
+      "name": "quality",
+      "displayName": "Drivers & Data Quality",
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "quality_title",
+            "multilineTextboxSpec": {
+              "lines": [
+                "## Drivers and data quality\n",
+                "\n",
+                "How the metrics move together, and what the pipeline fixed in the raw survey file."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "correlations",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_corr",
+                  "fields": [
+                    {
+                      "name": "metric_x",
+                      "expression": "`metric_x`"
+                    },
+                    {
+                      "name": "metric_y",
+                      "expression": "`metric_y`"
+                    },
+                    {
+                      "name": "avg(pearson_r)",
+                      "expression": "AVG(`pearson_r`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "heatmap",
+              "encodings": {
+                "x": {
+                  "fieldName": "metric_x",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Metric"
+                },
+                "y": {
+                  "fieldName": "metric_y",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Metric"
+                },
+                "color": {
+                  "fieldName": "avg(pearson_r)",
+                  "displayName": "Pearson r",
+                  "scale": {
+                    "type": "quantitative",
+                    "colorRamp": {
+                      "mode": "scheme",
+                      "scheme": "RdYlBu"
+                    }
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "frame": {
+                "title": "Q8 · Correlation between metrics (Pearson r)",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 7,
+            "height": 9
+          }
+        },
+        {
+          "widget": {
+            "name": "data_quality",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "ds_dq",
+                  "fields": [
+                    {
+                      "name": "check_name",
+                      "expression": "`check_name`"
+                    },
+                    {
+                      "name": "check_type",
+                      "expression": "`check_type`"
+                    },
+                    {
+                      "name": "sum(affected_rows)",
+                      "expression": "SUM(`affected_rows`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "widgetType": "bar",
+              "encodings": {
+                "y": {
+                  "fieldName": "check_name",
+                  "scale": {
+                    "type": "categorical",
+                    "sort": {
+                      "by": "x-reversed"
+                    }
+                  },
+                  "displayName": "Check"
+                },
+                "x": {
+                  "fieldName": "sum(affected_rows)",
+                  "scale": {
+                    "type": "quantitative"
+                  },
+                  "displayName": "Rows affected",
+                  "format": {
+                    "type": "number-plain",
+                    "decimalPlaces": {
+                      "type": "max",
+                      "places": 0
+                    }
+                  }
+                },
+                "color": {
+                  "fieldName": "check_type",
+                  "scale": {
+                    "type": "categorical"
+                  },
+                  "displayName": "Type"
+                }
+              },
+              "frame": {
+                "title": "Q9 · What the pipeline fixed",
+                "showTitle": true
+              }
+            }
+          },
+          "position": {
+            "x": 7,
+            "y": 2,
+            "width": 5,
+            "height": 9
+          }
+        }
+      ]
+    },
+    {
+      "name": "filters",
+      "displayName": "Filters",
+      "pageType": "PAGE_TYPE_GLOBAL_FILTERS",
+      "layoutVersion": "GRID_V1",
+      "layout": [
+        {
+          "widget": {
+            "name": "filter_user_type",
+            "queries": [
+              {
+                "name": "ds_users_user_type",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "user_type",
+                      "expression": "`user_type`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "ds_tools_user_type",
+                "query": {
+                  "datasetName": "ds_tools",
+                  "fields": [
+                    {
+                      "name": "user_type",
+                      "expression": "`user_type`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "user_type",
+                    "displayName": "User type",
+                    "queryName": "ds_users_user_type"
+                  },
+                  {
+                    "fieldName": "user_type",
+                    "displayName": "User type",
+                    "queryName": "ds_tools_user_type"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "User type"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_country",
+            "queries": [
+              {
+                "name": "ds_users_country",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "ds_tools_country",
+                "query": {
+                  "datasetName": "ds_tools",
+                  "fields": [
+                    {
+                      "name": "country",
+                      "expression": "`country`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "country",
+                    "displayName": "Country",
+                    "queryName": "ds_users_country"
+                  },
+                  {
+                    "fieldName": "country",
+                    "displayName": "Country",
+                    "queryName": "ds_tools_country"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Country"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 2,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_ai_tool",
+            "queries": [
+              {
+                "name": "ds_users_ai_tool",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "ai_tool",
+                      "expression": "`ai_tool`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "ds_tools_ai_tool",
+                "query": {
+                  "datasetName": "ds_tools",
+                  "fields": [
+                    {
+                      "name": "ai_tool",
+                      "expression": "`ai_tool`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "ai_tool",
+                    "displayName": "AI tool",
+                    "queryName": "ds_users_ai_tool"
+                  },
+                  {
+                    "fieldName": "ai_tool",
+                    "displayName": "AI tool",
+                    "queryName": "ds_tools_ai_tool"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "AI tool"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 4,
+            "height": 2
+          }
+        },
+        {
+          "widget": {
+            "name": "filter_age_group",
+            "queries": [
+              {
+                "name": "ds_users_age_group",
+                "query": {
+                  "datasetName": "ds_users",
+                  "fields": [
+                    {
+                      "name": "age_group",
+                      "expression": "`age_group`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              },
+              {
+                "name": "ds_tools_age_group",
+                "query": {
+                  "datasetName": "ds_tools",
+                  "fields": [
+                    {
+                      "name": "age_group",
+                      "expression": "`age_group`"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 2,
+              "widgetType": "filter-multi-select",
+              "encodings": {
+                "fields": [
+                  {
+                    "fieldName": "age_group",
+                    "displayName": "Age group",
+                    "queryName": "ds_users_age_group"
+                  },
+                  {
+                    "fieldName": "age_group",
+                    "displayName": "Age group",
+                    "queryName": "ds_tools_age_group"
+                  }
+                ]
+              },
+              "frame": {
+                "showTitle": true,
+                "title": "Age group"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 6,
+            "width": 4,
+            "height": 2
+          }
+        }
+      ]
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "canvasBackgroundColor": {
+        "light": "#F7F9FC",
+        "dark": "#1F272D"
+      },
+      "widgetBackgroundColor": {
+        "light": "#FFFFFF",
+        "dark": "#11171C"
+      },
+      "widgetBorderColor": {
+        "light": "#FFFFFF",
+        "dark": "#11171C"
+      },
+      "fontColor": {
+        "light": "#11171C",
+        "dark": "#E8ECF0"
+      },
+      "selectionColor": {
+        "light": "#2272B4",
+        "dark": "#8ACAFF"
+      },
+      "visualizationColors": [
+        "#1192E8",
+        "#6929C4",
+        "#005D5D",
+        "#9F1853",
+        "#FA4D56",
+        "#FFB000",
+        "#198038",
+        "#8A3800"
+      ],
+      "widgetHeaderAlignment": "LEFT"
+    }
+  }
+}

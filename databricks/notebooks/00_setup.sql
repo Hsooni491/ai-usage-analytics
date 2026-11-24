@@ -16,7 +16,7 @@ CREATE SCHEMA IF NOT EXISTS raw    COMMENT 'Landing zone (files)';
 CREATE SCHEMA IF NOT EXISTS bronze COMMENT 'Raw data as Delta, all strings';
 CREATE SCHEMA IF NOT EXISTS silver COMMENT 'Cleaned, typed, de-duplicated';
 CREATE SCHEMA IF NOT EXISTS staging COMMENT 'dbt helper views (staging + intermediate)';
-CREATE SCHEMA IF NOT EXISTS gold    COMMENT 'dbt fact and mart tables for Tableau';
+CREATE SCHEMA IF NOT EXISTS gold    COMMENT 'dbt fact and mart tables for the dashboard';
 
 -- COMMAND ----------
 

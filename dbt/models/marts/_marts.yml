@@ -2,7 +2,7 @@ version: 2
 
 models:
   - name: fct_ai_usage
-    description: One row per user with all attributes, bands and efficiency metrics. Primary Tableau source.
+    description: One row per user with all attributes, bands and efficiency metrics. Main source for the dashboard.
     columns:
       - name: user_id
         data_tests: [unique, not_null]
